@@ -1,0 +1,108 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+import statsmodels.api as sm
+
+# Load the data
+student_performance_df = pd.read_csv('https://archive.ics.uci.edu/static/public/320/data.csv', sep= ',')
+
+selected_data = student_performance_df[student_performance_df['G3'] >= 5] # Outliers excluded
+
+# Select 'Medu', 'Fedu', and 'G3' columns
+selected_data = student_performance_df[['Medu', 'Fedu', 'G3']]
+
+#=========================Medu================================================
+
+# Extract features and target for Medu
+X_medu = selected_data[['G3']]
+y_medu = selected_data['Medu']
+
+model_medu = LinearRegression() # linear regression model
+
+model_medu_sm = sm.OLS(y_medu, sm.add_constant(X_medu))
+results_medu = model_medu_sm.fit()
+
+print("R-squared for Medu vs G3:", results_medu.rsquared) # R-squared value and summary
+print(results_medu.summary())
+
+model_medu.fit(X_medu, y_medu) # Fit the linear regression
+
+y_pred_medu = model_medu.predict(X_medu) # Predictions for linear regression
+
+logreg_medu = LogisticRegression() # Logistic Regression for Medu
+logreg_medu.fit(X_medu, y_medu)
+y_pred_proba_medu = logreg_medu.predict_proba(X_medu)[:,1]
+
+
+
+#===========================Fedu===============================================
+
+# Extract features and target for Fedu
+X_fedu = selected_data[['G3']]
+y_fedu = selected_data['Fedu']
+
+# linear regression model
+model_fedu = LinearRegression()
+
+model_fedu_sm = sm.OLS(y_fedu, sm.add_constant(X_fedu))
+results_fedu = model_fedu_sm.fit()
+
+print("R-squared for Fedu vs G3:", results_fedu.rsquared) #  R-squared value and summary
+print(results_fedu.summary())
+
+model_fedu.fit(X_fedu, y_fedu) #  Fit the linear regression models
+
+y_pred_fedu = model_fedu.predict(X_fedu) # Predictions for linear regression
+
+logreg_fedu = LogisticRegression() # Logistic Regression for Fedu
+logreg_fedu.fit(X_fedu, y_fedu)
+y_pred_proba_fedu = logreg_fedu.predict_proba(X_fedu)[:,1]
+
+
+
+#=========================Plot for both using linear and logistic===============
+fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+# Plot Medu vs G3 (linear regression)
+axs[0].scatter(X_medu, y_medu, color='blue', label='Actual')
+axs[0].plot(X_medu, y_pred_medu, color='red', label='Linear Regression')
+axs[0].set_xlabel('G3')
+axs[0].set_ylabel('Medu')
+axs[0].set_title('Medu vs G3')
+axs[0].legend()
+
+# Plot Fedu vs G3 (linear regression)
+axs[1].scatter(X_fedu, y_fedu, color='blue', label='Actual')
+axs[1].plot(X_fedu, y_pred_fedu, color='red', label='Linear Regression')
+axs[1].set_xlabel('G3')
+axs[1].set_ylabel('Fedu')
+axs[1].set_title('Fedu vs G3')
+axs[1].legend()
+
+# Plot Medu vs G3 (logistic regression)
+axs[0].plot(X_medu, y_pred_proba_medu, color='green', label='Logistic Regression')
+axs[0].legend()
+
+# Plot Fedu vs G3 (logistic regression)
+axs[1].plot(X_fedu, y_pred_proba_fedu, color='green', label='Logistic Regression')
+axs[1].legend()
+
+plt.tight_layout()
+plt.show()
+
+
+#slope
+model_medu.fit(X_medu, y_medu)
+
+slope_medu = model_medu.coef_
+
+print("Slope of the regression line for Medu:", slope_medu)
+
+
+
+model_fedu.fit(X_fedu, y_fedu)
+
+slope_fedu = model_fedu.coef_
+
+print("Slope of the regression line for Fedu:", slope_fedu)
